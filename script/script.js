@@ -69,3 +69,54 @@ function renderizar() {
 
 mostrarMes();
 renderizar();
+
+let historico = JSON.parse(localStorage.getItem("historico")) || [];
+
+function fecharMes() {
+    if (contas.length === 0) {
+        alert("Não há contas para fechar!");
+        return;
+    }
+
+    const mesTexto = document.getElementById("mesAtual").innerText;
+
+    let total = contas.reduce((acc, c) => acc + c.valor, 0);
+
+    historico.push({
+        mes: mesTexto,
+        total: total,
+        contas: contas
+    });
+
+    localStorage.setItem("historico", JSON.stringify(historico));
+
+    contas = [];
+    salvar();
+
+    renderizar();
+    renderizarHistorico();
+
+    alert("Mês fechado com sucesso!");
+}
+
+function renderizarHistorico() {
+    const div = document.getElementById("historico");
+    div.innerHTML = "";
+
+    historico.forEach((mes, index) => {
+        let bloco = document.createElement("div");
+        bloco.className = "card";
+
+        let html = `<h3>${mes.mes}</h3>`;
+        html += `<p>Total: R$ ${mes.total.toFixed(2)}</p>`;
+
+        mes.contas.forEach(c => {
+            html += `<p>${c.cartao} - ${c.nome} - R$ ${c.valor.toFixed(2)}</p>`;
+        });
+
+        bloco.innerHTML = html;
+        div.appendChild(bloco);
+    });
+}
+
+renderizarHistorico();
