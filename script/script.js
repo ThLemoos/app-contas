@@ -1,3 +1,4 @@
+// 🔥 CONFIG FIREBASE
 const firebaseConfig = {
     apiKey: "AIzaSyB-tiKS-EUwiMaiHF0cH8p8fIVsQy4eSzw",
     authDomain: "app-contas-88fd3.firebaseapp.com",
@@ -7,12 +8,14 @@ const firebaseConfig = {
     appId: "1:939142410016:web:3d2beeb98fa8f849df7145"
 };
 
-const app = firebase.initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-let contas = JSON.parse(localStorage.getItem("contas")) || [];
-let historico = JSON.parse(localStorage.getItem("historico")) || [];
+// 🔥 DADOS
+let contas = [];
+let historico = [];
 
+// 🔥 CARREGAR DADOS
 async function carregarDados() {
     const doc = await db.collection("dados").doc("usuario").get();
 
@@ -25,6 +28,7 @@ async function carregarDados() {
     renderizar();
 }
 
+// 🔥 SALVAR NO FIREBASE
 async function salvar() {
     await db.collection("dados").doc("usuario").set({
         contas: contas,
@@ -32,7 +36,7 @@ async function salvar() {
     });
 }
 
-
+// 🔥 TEMPO REAL
 db.collection("dados").doc("usuario")
     .onSnapshot((doc) => {
         if (doc.exists) {
@@ -44,6 +48,7 @@ db.collection("dados").doc("usuario")
         }
     });
 
+// 🔥 MÊS
 function mostrarMes() {
     const meses = [
         "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -54,6 +59,7 @@ function mostrarMes() {
         meses[hoje.getMonth()] + " de " + hoje.getFullYear();
 }
 
+// 🔥 ADICIONAR CONTA
 function adicionarConta() {
     const cartao = document.getElementById("cartao").value;
     const nome = document.getElementById("nomeConta").value;
@@ -67,17 +73,13 @@ function adicionarConta() {
     contas.push({ cartao, nome, valor });
 
     salvar();
-    renderizar();
 
     document.getElementById("cartao").value = "";
     document.getElementById("nomeConta").value = "";
     document.getElementById("valorConta").value = "";
-
-    document.querySelectorAll(".card").forEach(card => {
-        card.style.animation = "aparecer 0.3s ease";
-    });
 }
 
+// 🔥 RENDERIZAR
 function renderizar() {
     const lista = document.getElementById("listaContas");
     lista.innerHTML = "";
@@ -129,6 +131,7 @@ function renderizar() {
         "Total: R$ " + total.toFixed(2);
 }
 
+// 🔥 FECHAR MÊS
 function fecharMes() {
     if (contas.length === 0) {
         alert("Não há contas para fechar!");
@@ -136,25 +139,21 @@ function fecharMes() {
     }
 
     const mesTexto = document.getElementById("mesAtual").innerText;
-
     let total = contas.reduce((acc, c) => acc + c.valor, 0);
 
     historico.push({
         mes: mesTexto,
         total: total,
-        contas: [...contas] // cópia correta
+        contas: [...contas]
     });
-
-    localStorage.setItem("historico", JSON.stringify(historico));
 
     contas = [];
     salvar();
 
-    renderizar();
-
     alert("Mês fechado com sucesso!");
 }
 
+// 🔥 HISTÓRICO
 function renderizarHistorico() {
     const div = document.getElementById("historico");
     div.innerHTML = "";
@@ -206,8 +205,9 @@ function renderizarHistorico() {
     });
 }
 
+// 🔥 MODAL
 function abrirHistorico() {
-    renderizarHistorico(); // 🔥 ESSENCIAL
+    renderizarHistorico();
     document.getElementById("modalHistorico").style.display = "block";
 }
 
@@ -222,48 +222,34 @@ window.onclick = function (event) {
     }
 }
 
+// 🔥 EXCLUIR
 function excluirMes(index) {
-    if (!confirm("Tem certeza que deseja excluir este mês?")) return;
+    if (!confirm("Tem certeza?")) return;
 
     historico.splice(index, 1);
-    localStorage.setItem("historico", JSON.stringify(historico));
-
-    renderizarHistorico();
+    salvar();
 }
 
 function excluirConta(index) {
-    if (!confirm("Excluir essa conta?")) return;
+    if (!confirm("Excluir conta?")) return;
 
     contas.splice(index, 1);
     salvar();
-    renderizar();
 }
 
+// 🔥 IDENTIDADE
 function getInfoCartao(cartao) {
     cartao = cartao.toLowerCase();
 
-    if (cartao.includes("nubank")) {
-        return { cor: "#8A05BE", icone: "nu" };
-    }
-
-    if (cartao.includes("itaú") || cartao.includes("itau")) {
-        return { cor: "#FF6200", icone: "it" };
-    }
-
-    if (cartao.includes("bruna")) {
-        return { cor: "#E11D48", icone: "B" };
-    }
-
-    if (cartao.includes("mãe") || cartao.includes("mae")) {
-        return { cor: "#EC4899", icone: "M" };
-    }
-
-    if (cartao.includes("pai")) {
-        return { cor: "#2563EB", icone: "P" };
-    }
+    if (cartao.includes("nubank")) return { cor: "#8A05BE", icone: "nu" };
+    if (cartao.includes("itaú") || cartao.includes("itau")) return { cor: "#FF6200", icone: "it" };
+    if (cartao.includes("bruna")) return { cor: "#E11D48", icone: "B" };
+    if (cartao.includes("mãe") || cartao.includes("mae")) return { cor: "#EC4899", icone: "M" };
+    if (cartao.includes("pai")) return { cor: "#2563EB", icone: "P" };
 
     return { cor: "#64748B", icone: "💳" };
 }
 
+// 🚀 INICIAR
 mostrarMes();
-renderizar();
+carregarDados();
