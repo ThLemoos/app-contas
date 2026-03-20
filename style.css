@@ -32,6 +32,17 @@
        border: none;
    }
 
+   input,
+   select,
+   textarea {
+       font-size: 16px;
+   }
+
+   input {
+       width: 100%;
+       box-sizing: border-box;
+   }
+
    button {
        background: #22c55e;
        color: white;
