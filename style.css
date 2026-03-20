@@ -138,10 +138,12 @@
        -webkit-overflow-scrolling: touch;
    }
 
-   
+
    .fechar {
-       float: right;
-       font-size: 25px;
+       position: fixed;
+       top: 15px;
+       right: 20px;
+       font-size: 28px;
        cursor: pointer;
    }
 
