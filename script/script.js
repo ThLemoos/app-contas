@@ -1,8 +1,48 @@
-let contas = JSON.parse(localStorage.getItem("contas")) || [];
+const firebaseConfig = {
+    apiKey: "AIzaSyB-tiKS-EUwiMaiHF0cH8p8fIVsQy4eSzw",
+    authDomain: "app-contas-88fd3.firebaseapp.com",
+    projectId: "app-contas-88fd3",
+    storageBucket: "app-contas-88fd3.firebasestorage.app",
+    messagingSenderId: "939142410016",
+    appId: "1:939142410016:web:3d2beeb98fa8f849df7145"
+};
 
-function salvar() {
-    localStorage.setItem("contas", JSON.stringify(contas));
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let contas = JSON.parse(localStorage.getItem("contas")) || [];
+let historico = JSON.parse(localStorage.getItem("historico")) || [];
+
+async function carregarDados() {
+    const doc = await db.collection("dados").doc("usuario").get();
+
+    if (doc.exists) {
+        const data = doc.data();
+        contas = data.contas || [];
+        historico = data.historico || [];
+    }
+
+    renderizar();
 }
+
+async function salvar() {
+    await db.collection("dados").doc("usuario").set({
+        contas: contas,
+        historico: historico
+    });
+}
+
+
+db.collection("dados").doc("usuario")
+    .onSnapshot((doc) => {
+        if (doc.exists) {
+            const data = doc.data();
+            contas = data.contas || [];
+            historico = data.historico || [];
+
+            renderizar();
+        }
+    });
 
 function mostrarMes() {
     const meses = [
@@ -32,6 +72,10 @@ function adicionarConta() {
     document.getElementById("cartao").value = "";
     document.getElementById("nomeConta").value = "";
     document.getElementById("valorConta").value = "";
+
+    document.querySelectorAll(".card").forEach(card => {
+        card.style.animation = "aparecer 0.3s ease";
+    });
 }
 
 function renderizar() {
@@ -53,18 +97,26 @@ function renderizar() {
         const div = document.createElement("div");
         div.className = "card";
 
+        let info = getInfoCartao(cartao);
         let subtotal = agrupado[cartao].reduce((acc, c) => acc + c.valor, 0);
 
-        let html = `<h3>${cartao}</h3>`;
+        let html = `
+            <div class="card-header">
+                <div class="icone" style="background:${info.cor}">
+                    ${info.icone}
+                </div>
+                <h3>${cartao}</h3>
+            </div>
+        `;
 
         agrupado[cartao].forEach(c => {
             html += `
-        <div class="item-conta">
-          <span>${c.nome}</span>
-          <span>R$ ${c.valor.toFixed(2)}</span>
-          <button onclick="excluirConta(${c.index})">❌</button>
-        </div>
-      `;
+                <div class="item-conta">
+                    <span>${c.nome}</span>
+                    <span>R$ ${c.valor.toFixed(2)}</span>
+                    <button onclick="excluirConta(${c.index})">❌</button>
+                </div>
+            `;
         });
 
         html += `<p class="subtotal">Total: R$ ${subtotal.toFixed(2)}</p>`;
@@ -76,11 +128,6 @@ function renderizar() {
     document.getElementById("totalGeral").innerText =
         "Total: R$ " + total.toFixed(2);
 }
-
-mostrarMes();
-renderizar();
-
-let historico = JSON.parse(localStorage.getItem("historico")) || [];
 
 function fecharMes() {
     if (contas.length === 0) {
@@ -95,7 +142,7 @@ function fecharMes() {
     historico.push({
         mes: mesTexto,
         total: total,
-        contas: contas
+        contas: [...contas] // cópia correta
     });
 
     localStorage.setItem("historico", JSON.stringify(historico));
@@ -104,7 +151,6 @@ function fecharMes() {
     salvar();
 
     renderizar();
-    renderizarHistorico();
 
     alert("Mês fechado com sucesso!");
 }
@@ -118,10 +164,10 @@ function renderizarHistorico() {
         bloco.className = "card";
 
         let html = `
-      <h3>${mes.mes}</h3>
-      <p><strong>Total: R$ ${mes.total.toFixed(2)}</strong></p>
-      <button onclick="excluirMes(${index})">🗑️ Excluir mês</button>
-    `;
+            <h3>${mes.mes}</h3>
+            <p><strong>Total: R$ ${mes.total.toFixed(2)}</strong></p>
+            <button onclick="excluirMes(${index})">🗑️ Excluir mês</button>
+        `;
 
         let agrupado = {};
 
@@ -134,9 +180,18 @@ function renderizarHistorico() {
 
         for (let cartao in agrupado) {
             let subtotal = agrupado[cartao].reduce((acc, c) => acc + c.valor, 0);
+            let info = getInfoCartao(cartao);
 
             html += `<div class="card" style="margin-top:10px;">`;
-            html += `<h4>${cartao}</h4>`;
+
+            html += `
+                <div class="card-header">
+                    <div class="icone" style="background:${info.cor}">
+                        ${info.icone}
+                    </div>
+                    <h4>${cartao}</h4>
+                </div>
+            `;
 
             agrupado[cartao].forEach(c => {
                 html += `<p>${c.nome} - R$ ${c.valor.toFixed(2)}</p>`;
@@ -152,28 +207,25 @@ function renderizarHistorico() {
 }
 
 function abrirHistorico() {
+    renderizarHistorico(); // 🔥 ESSENCIAL
     document.getElementById("modalHistorico").style.display = "block";
 }
 
 function fecharHistorico() {
-    renderizarHistorico();
     document.getElementById("modalHistorico").style.display = "none";
 }
 
 window.onclick = function (event) {
     let modal = document.getElementById("modalHistorico");
     if (event.target === modal) {
-        modal.style.display = "none";
+        fecharHistorico();
     }
 }
 
 function excluirMes(index) {
-    let confirmar = confirm("Tem certeza que deseja excluir este mês?");
-
-    if (!confirmar) return;
+    if (!confirm("Tem certeza que deseja excluir este mês?")) return;
 
     historico.splice(index, 1);
-
     localStorage.setItem("historico", JSON.stringify(historico));
 
     renderizarHistorico();
@@ -186,3 +238,32 @@ function excluirConta(index) {
     salvar();
     renderizar();
 }
+
+function getInfoCartao(cartao) {
+    cartao = cartao.toLowerCase();
+
+    if (cartao.includes("nubank")) {
+        return { cor: "#8A05BE", icone: "nu" };
+    }
+
+    if (cartao.includes("itaú") || cartao.includes("itau")) {
+        return { cor: "#FF6200", icone: "it" };
+    }
+
+    if (cartao.includes("bruna")) {
+        return { cor: "#E11D48", icone: "B" };
+    }
+
+    if (cartao.includes("mãe") || cartao.includes("mae")) {
+        return { cor: "#EC4899", icone: "M" };
+    }
+
+    if (cartao.includes("pai")) {
+        return { cor: "#2563EB", icone: "P" };
+    }
+
+    return { cor: "#64748B", icone: "💳" };
+}
+
+mostrarMes();
+renderizar();
