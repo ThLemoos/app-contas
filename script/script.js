@@ -107,8 +107,11 @@ function renderizarHistorico() {
         let bloco = document.createElement("div");
         bloco.className = "card";
 
-        let html = `<h3>${mes.mes}</h3>`;
-        html += `<p>Total: R$ ${mes.total.toFixed(2)}</p>`;
+        let html = `
+      <h3>${mes.mes}</h3>
+      <p>Total: R$ ${mes.total.toFixed(2)}</p>
+      <button onclick="excluirMes(${index})">🗑️ Excluir mês</button>
+    `;
 
         mes.contas.forEach(c => {
             html += `<p>${c.cartao} - ${c.nome} - R$ ${c.valor.toFixed(2)}</p>`;
@@ -119,4 +122,30 @@ function renderizarHistorico() {
     });
 }
 
-renderizarHistorico();
+function abrirHistorico() {
+    document.getElementById("modalHistorico").style.display = "block";
+}
+
+function fecharHistorico() {
+    renderizarHistorico();
+    document.getElementById("modalHistorico").style.display = "none";
+}
+
+window.onclick = function (event) {
+    let modal = document.getElementById("modalHistorico");
+    if (event.target === modal) {
+        modal.style.display = "none";
+    }
+}
+
+function excluirMes(index) {
+    let confirmar = confirm("Tem certeza que deseja excluir este mês?");
+
+    if (!confirmar) return;
+
+    historico.splice(index, 1);
+
+    localStorage.setItem("historico", JSON.stringify(historico));
+
+    renderizarHistorico();
+}
