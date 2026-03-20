@@ -41,11 +41,11 @@ function renderizar() {
     let agrupado = {};
     let total = 0;
 
-    contas.forEach(c => {
+    contas.forEach((c, index) => {
         if (!agrupado[c.cartao]) {
             agrupado[c.cartao] = [];
         }
-        agrupado[c.cartao].push(c);
+        agrupado[c.cartao].push({ ...c, index });
         total += c.valor;
     });
 
@@ -53,11 +53,21 @@ function renderizar() {
         const div = document.createElement("div");
         div.className = "card";
 
+        let subtotal = agrupado[cartao].reduce((acc, c) => acc + c.valor, 0);
+
         let html = `<h3>${cartao}</h3>`;
 
         agrupado[cartao].forEach(c => {
-            html += `<p>${c.nome} - R$ ${c.valor.toFixed(2)}</p>`;
+            html += `
+        <div class="item-conta">
+          <span>${c.nome}</span>
+          <span>R$ ${c.valor.toFixed(2)}</span>
+          <button onclick="excluirConta(${c.index})">❌</button>
+        </div>
+      `;
         });
+
+        html += `<p class="subtotal">Total: R$ ${subtotal.toFixed(2)}</p>`;
 
         div.innerHTML = html;
         lista.appendChild(div);
@@ -109,13 +119,32 @@ function renderizarHistorico() {
 
         let html = `
       <h3>${mes.mes}</h3>
-      <p>Total: R$ ${mes.total.toFixed(2)}</p>
+      <p><strong>Total: R$ ${mes.total.toFixed(2)}</strong></p>
       <button onclick="excluirMes(${index})">🗑️ Excluir mês</button>
     `;
 
+        let agrupado = {};
+
         mes.contas.forEach(c => {
-            html += `<p>${c.cartao} - ${c.nome} - R$ ${c.valor.toFixed(2)}</p>`;
+            if (!agrupado[c.cartao]) {
+                agrupado[c.cartao] = [];
+            }
+            agrupado[c.cartao].push(c);
         });
+
+        for (let cartao in agrupado) {
+            let subtotal = agrupado[cartao].reduce((acc, c) => acc + c.valor, 0);
+
+            html += `<div class="card" style="margin-top:10px;">`;
+            html += `<h4>${cartao}</h4>`;
+
+            agrupado[cartao].forEach(c => {
+                html += `<p>${c.nome} - R$ ${c.valor.toFixed(2)}</p>`;
+            });
+
+            html += `<p class="subtotal">Total: R$ ${subtotal.toFixed(2)}</p>`;
+            html += `</div>`;
+        }
 
         bloco.innerHTML = html;
         div.appendChild(bloco);
@@ -148,4 +177,12 @@ function excluirMes(index) {
     localStorage.setItem("historico", JSON.stringify(historico));
 
     renderizarHistorico();
+}
+
+function excluirConta(index) {
+    if (!confirm("Excluir essa conta?")) return;
+
+    contas.splice(index, 1);
+    salvar();
+    renderizar();
 }
