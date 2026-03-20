@@ -94,3 +94,7 @@
        gap: 10px;
        margin-top: 20px;
    }
+
+   .botoes button {
+       min-width: 140px;
+   }
