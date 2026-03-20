@@ -87,3 +87,10 @@
        font-size: 25px;
        cursor: pointer;
    }
+
+   .botoes {
+       display: flex;
+       justify-content: center;
+       gap: 10px;
+       margin-top: 20px;
+   }
