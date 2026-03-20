@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ControleFácil 💸</title>
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+    <h1>ControleFácil 💸</h1>
+    <div class="mes" id="mesAtual"></div>
+
+    <div class="form">
+        <input type="text" id="cartao" placeholder="Nome do cartão (ex: Nubank)">
+        <input type="text" id="nomeConta" placeholder="Nome da conta">
+        <input type="number" id="valorConta" placeholder="Valor (R$)">
+        <button onclick="adicionarConta()">Adicionar Conta</button>
+    </div>
+
+    <div class="cards" id="listaContas"></div>
+
+    <div class="total" id="totalGeral">Total: R$ 0</div>
+
+    <script src="script/script.js"></script>
+
+</body>
+
+</html>
