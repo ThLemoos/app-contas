@@ -246,7 +246,7 @@ body::before {
 
 .hero-value {
     font-family: var(--font-display);
-    font-size: clamp(28px, 10vw, 48px);
+    font-size: clamp(28px, 5vw, 48px);
     font-weight: 800;
     color: var(--green);
     line-height: 1;
