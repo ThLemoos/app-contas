@@ -305,15 +305,36 @@ function toggleHistCard(header) {
     chevron.classList.toggle("rotated");
 }
 
+let scrollYSalvo = 0;
+
 function abrirHistorico() {
     renderizarHistorico();
-    document.getElementById("modalHistorico").classList.add("open");
+
+    // Salva posição e trava o body sem fazer a página pular
+    scrollYSalvo = window.scrollY;
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollYSalvo}px`;
+    document.body.style.width = "100%";
     document.body.style.overflow = "hidden";
+
+    document.getElementById("modalHistorico").classList.add("open");
+
+    // Garante que o scroll do modal começa do topo
+    setTimeout(() => {
+        const body = document.querySelector(".modal-body");
+        if (body) body.scrollTop = 0;
+    }, 50);
 }
 
 function fecharHistorico() {
     document.getElementById("modalHistorico").classList.remove("open");
+
+    // Restaura o body e volta para onde estava
+    document.body.style.position = "";
+    document.body.style.top = "";
+    document.body.style.width = "";
     document.body.style.overflow = "";
+    window.scrollTo(0, scrollYSalvo);
 }
 
 function fecharSeClicouFora(event) {
