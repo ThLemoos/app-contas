@@ -246,13 +246,15 @@ body::before {
 
 .hero-value {
     font-family: var(--font-display);
-    font-size: 48px;
+    font-size: clamp(28px, 10vw, 48px);
     font-weight: 800;
     color: var(--green);
     line-height: 1;
     letter-spacing: -0.02em;
     transition: all 0.4s ease;
     text-shadow: 0 0 40px rgba(0, 229, 160, 0.3);
+    word-break: break-all;
+    padding: 0 8px;
 }
 
 .hero-sub {
@@ -311,13 +313,15 @@ body::before {
     border: 1px solid var(--border2);
     border-radius: var(--radius-sm);
     padding: 13px 16px;
-    font-size: 15px;
+    font-size: 16px;
+    /* Mínimo 16px previne zoom no iOS */
     font-family: var(--font-body);
     color: var(--text);
     width: 100%;
     outline: none;
     transition: all 0.2s;
     -webkit-appearance: none;
+    touch-action: manipulation;
 }
 
 .input-group input::placeholder {
@@ -647,6 +651,7 @@ input[type=number] {
     z-index: 1000;
     align-items: flex-end;
     justify-content: center;
+    overscroll-behavior: contain;
 }
 
 .modal-overlay.open {
@@ -660,6 +665,7 @@ input[type=number] {
     width: 100%;
     max-width: 480px;
     max-height: 88vh;
+    height: 88vh;
     display: flex;
     flex-direction: column;
     animation: sheet-up 0.35s cubic-bezier(0.32, 0.72, 0, 1);
@@ -712,13 +718,16 @@ input[type=number] {
 }
 
 .modal-body {
-    overflow-y: auto;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
     flex: 1;
     padding: 16px;
-    -webkit-overflow-scrolling: touch;
     display: flex;
     flex-direction: column;
     gap: 14px;
+    min-height: 0;
+    /* Essencial para o flex + scroll funcionar */
 }
 
 /* Histórico cards */
@@ -937,6 +946,7 @@ input[type=number] {
     .modal-panel {
         border-radius: 24px;
         max-height: 80vh;
+        height: auto;
         margin-bottom: 40px;
     }
 }
