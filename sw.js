@@ -1,7 +1,34 @@
+const CACHE_NAME = "controle-facil-v2";
+const ASSETS = [
+    "./",
+    "./index.html",
+    "./style.css",
+    "./script.js",
+    "./manifest.json"
+];
+
 self.addEventListener("install", (e) => {
-    console.log("Service Worker instalado");
+    e.waitUntil(
+        caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+    );
+    self.skipWaiting();
 });
 
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js");
-}
+self.addEventListener("activate", (e) => {
+    e.waitUntil(
+        caches.keys().then((keys) =>
+            Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+        )
+    );
+    self.clients.claim();
+});
+
+self.addEventListener("fetch", (e) => {
+    // Não cacheia Firebase
+    if (e.request.url.includes("firestore") || e.request.url.includes("googleapis")) {
+        return;
+    }
+    e.respondWith(
+        caches.match(e.request).then((cached) => cached || fetch(e.request))
+    );
+});

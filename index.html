@@ -3,50 +3,129 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>ControleFácil 💸</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0f172a">
-
+    <meta name="theme-color" content="#0a0a0f">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
 </head>
 
 <body>
 
-    <h1>ControleFácil 💸</h1>
-    <div class="mes" id="mesAtual"></div>
-
-    <div class="form">
-        <input type="text" id="cartao" placeholder="Nome do cartão (ex: Nubank)">
-        <input type="text" id="nomeConta" placeholder="Nome da conta">
-        <input type="number" id="valorConta" placeholder="Valor (R$)">
-        <button onclick="adicionarConta()">Adicionar Conta</button>
-    </div>
-
-    <div class="cards" id="listaContas"></div>
-
-    <div class="total" id="totalGeral">Total: R$ 0</div>
-
-    <div class="botoes">
-        <button onclick="fecharMes()">Fechar Mês</button>
-        <button onclick="abrirHistorico()">Ver Histórico</button>
-    </div>
-
-    <h2 style="text-align:center; margin-top:30px;">Histórico</h2>
-
-    <div id="modalHistorico" class="modal">
-        <div class="modal-content">
-            <span class="fechar" onclick="fecharHistorico()">&times;</span>
-            <h2>Histórico</h2>
-            <div id="historico"></div>
+    <!-- LOADING SPLASH -->
+    <div id="splash" class="splash">
+        <div class="splash-logo">💸</div>
+        <div class="splash-name">ControleFácil</div>
+        <div class="splash-bar">
+            <div class="splash-fill"></div>
         </div>
     </div>
 
+    <!-- TOPO -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo-mark">💸</div>
+            <div>
+                <div class="app-name">ControleFácil</div>
+                <div class="mes-label" id="mesAtual"></div>
+            </div>
+        </div>
+        <div class="header-right">
+            <button class="btn-icon" onclick="abrirHistorico()" title="Histórico">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- HERO TOTAL -->
+    <section class="hero-total">
+        <div class="hero-label">Total do mês</div>
+        <div class="hero-value" id="totalGeral">R$ 0,00</div>
+        <div class="hero-sub" id="qtdContas">Nenhuma conta ainda</div>
+        <div class="hero-glow"></div>
+    </section>
+
+    <!-- FORMULÁRIO -->
+    <section class="form-section">
+        <div class="form-title">Nova Conta</div>
+        <div class="form-grid">
+            <div class="input-group">
+                <label>Cartão / Pessoa</label>
+                <input type="text" id="cartao" placeholder="ex: Nubank, Bruna...">
+            </div>
+            <div class="input-group">
+                <label>Descrição</label>
+                <input type="text" id="nomeConta" placeholder="ex: Netflix, Mercado...">
+            </div>
+            <div class="input-group">
+                <label>Valor (R$)</label>
+                <input type="number" id="valorConta" placeholder="0,00" step="0.01" min="0">
+            </div>
+        </div>
+        <button class="btn-add" onclick="adicionarConta()">
+            <span class="btn-add-icon">+</span>
+            Adicionar
+        </button>
+    </section>
+
+    <!-- LISTA DE CONTAS -->
+    <section class="lista-section">
+        <div class="lista-header">
+            <span class="lista-title">Contas do Mês</span>
+            <span class="lista-badge" id="badgeQtd">0</span>
+        </div>
+        <div id="listaContas" class="cards-wrap">
+            <div class="empty-state" id="emptyState">
+                <div class="empty-icon">🧾</div>
+                <div class="empty-text">Nenhuma conta adicionada</div>
+                <div class="empty-sub">Adicione sua primeira conta acima</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BOTÃO FECHAR MÊS -->
+    <div class="fechar-mes-wrap">
+        <button class="btn-fechar" onclick="fecharMes()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+            </svg>
+            Fechar Mês
+        </button>
+    </div>
+
+    <!-- MODAL HISTÓRICO -->
+    <div id="modalHistorico" class="modal-overlay" onclick="fecharSeClicouFora(event)">
+        <div class="modal-panel">
+            <div class="modal-header">
+                <div class="modal-title">Histórico</div>
+                <button class="modal-close" onclick="fecharHistorico()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </div>
+            <div id="historico" class="modal-body"></div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast" class="toast"></div>
+
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-
     <script src="script/script.js"></script>
-
 </body>
 
 </html>
