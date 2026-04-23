@@ -24,7 +24,6 @@ self.addEventListener("activate", (e) => {
 });
 
 self.addEventListener("fetch", (e) => {
-    // Não cacheia Firebase
     if (e.request.url.includes("firestore") || e.request.url.includes("googleapis")) {
         return;
     }

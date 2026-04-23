@@ -1,8 +1,3 @@
-// ========================================
-// CONTROLE FÁCIL — script.js
-// ========================================
-
-// 🔥 CONFIG FIREBASE
 const firebaseConfig = {
     apiKey: "AIzaSyB-tiKS-EUwiMaiHF0cH8p8fIVsQy4eSzw",
     authDomain: "app-contas-88fd3.firebaseapp.com",
@@ -15,13 +10,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// 🔥 DADOS
 let contas = [];
 let historico = [];
 
-// ========================================
-// INICIALIZAÇÃO
-// ========================================
 document.addEventListener("DOMContentLoaded", () => {
     mostrarMes();
     carregarDados();
@@ -40,7 +31,6 @@ function esconderSplash() {
 }
 
 function configurarKeyboard() {
-    // Permite adicionar conta com Enter no último campo
     document.getElementById("valorConta").addEventListener("keydown", (e) => {
         if (e.key === "Enter") adicionarConta();
     });
@@ -52,9 +42,6 @@ function configurarKeyboard() {
     });
 }
 
-// ========================================
-// FIREBASE
-// ========================================
 async function carregarDados() {
     try {
         const doc = await db.collection("dados").doc("usuario").get();
@@ -80,7 +67,6 @@ async function salvar() {
     }
 }
 
-// Tempo real
 db.collection("dados").doc("usuario").onSnapshot((doc) => {
     if (doc.exists) {
         const data = doc.data();
@@ -90,9 +76,6 @@ db.collection("dados").doc("usuario").onSnapshot((doc) => {
     }
 });
 
-// ========================================
-// MÊS
-// ========================================
 function mostrarMes() {
     const meses = [
         "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -103,9 +86,6 @@ function mostrarMes() {
         meses[hoje.getMonth()].toUpperCase() + " " + hoje.getFullYear();
 }
 
-// ========================================
-// ADICIONAR CONTA
-// ========================================
 function adicionarConta() {
     const cartao = document.getElementById("cartao").value.trim();
     const nome = document.getElementById("nomeConta").value.trim();
@@ -126,9 +106,6 @@ function adicionarConta() {
     toast("Conta adicionada!", "success");
 }
 
-// ========================================
-// RENDERIZAR CONTAS
-// ========================================
 function renderizar() {
     const lista = document.getElementById("listaContas");
     const emptyState = document.getElementById("emptyState");
@@ -144,7 +121,6 @@ function renderizar() {
         ? "Nenhuma conta ainda"
         : `${contas.length} ${contas.length === 1 ? "conta" : "contas"} registrada${contas.length === 1 ? "" : "s"}`;
 
-    // Limpar lista (mantém o emptyState)
     const cardsAntigos = lista.querySelectorAll(".card");
     cardsAntigos.forEach(c => c.remove());
 
@@ -155,7 +131,6 @@ function renderizar() {
 
     emptyState.style.display = "none";
 
-    // Agrupar por cartão
     let agrupado = {};
     contas.forEach((c, index) => {
         if (!agrupado[c.cartao]) agrupado[c.cartao] = [];
@@ -201,9 +176,6 @@ function renderizar() {
     }
 }
 
-// ========================================
-// FECHAR MÊS
-// ========================================
 function fecharMes() {
     if (contas.length === 0) {
         toast("Não há contas para fechar!", "error");
@@ -226,9 +198,6 @@ function fecharMes() {
     toast("Mês fechado com sucesso! 🎉", "success");
 }
 
-// ========================================
-// HISTÓRICO
-// ========================================
 function renderizarHistorico() {
     const div = document.getElementById("historico");
     div.innerHTML = "";
@@ -310,7 +279,6 @@ let scrollYSalvo = 0;
 function abrirHistorico() {
     renderizarHistorico();
 
-    // Salva posição e trava o body sem fazer a página pular
     scrollYSalvo = window.scrollY;
     document.body.style.position = "fixed";
     document.body.style.top = `-${scrollYSalvo}px`;
@@ -319,7 +287,6 @@ function abrirHistorico() {
 
     document.getElementById("modalHistorico").classList.add("open");
 
-    // Garante que o scroll do modal começa do topo
     setTimeout(() => {
         const body = document.querySelector(".modal-body");
         if (body) body.scrollTop = 0;
@@ -329,7 +296,6 @@ function abrirHistorico() {
 function fecharHistorico() {
     document.getElementById("modalHistorico").classList.remove("open");
 
-    // Restaura o body e volta para onde estava
     document.body.style.position = "";
     document.body.style.top = "";
     document.body.style.width = "";
@@ -343,9 +309,6 @@ function fecharSeClicouFora(event) {
     }
 }
 
-// ========================================
-// EXCLUIR
-// ========================================
 function excluirMes(event, index) {
     event.stopPropagation();
     if (!confirm("Excluir este mês do histórico?")) return;
@@ -362,9 +325,6 @@ function excluirConta(index) {
     toast("Conta removida", "success");
 }
 
-// ========================================
-// IDENTIDADE DOS CARTÕES
-// ========================================
 function getInfoCartao(cartao) {
     const c = cartao.toLowerCase();
     if (c.includes("nubank")) return { cor: "#8A05BE", icone: "Nu" };
@@ -378,7 +338,6 @@ function getInfoCartao(cartao) {
     if (c.includes("pai")) return { cor: "#2563EB", icone: "P" };
     if (c.includes("c6")) return { cor: "#333", icone: "C6" };
 
-    // Cor gerada a partir do nome
     const cores = ["#7C3AED", "#0891B2", "#059669", "#D97706", "#DC2626", "#9333EA", "#0284C7"];
     let hash = 0;
     for (let i = 0; i < cartao.length; i++) hash = cartao.charCodeAt(i) + ((hash << 5) - hash);
@@ -386,9 +345,6 @@ function getInfoCartao(cartao) {
     return { cor, icone: cartao.substring(0, 2).toUpperCase() };
 }
 
-// ========================================
-// UTILITÁRIOS
-// ========================================
 function formatarMoeda(valor) {
     return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
